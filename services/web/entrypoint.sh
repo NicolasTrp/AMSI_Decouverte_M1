@@ -60,7 +60,10 @@ chmod 600 /root/flag_root.txt; chown root:root /root/flag_root.txt
 
 # --- 6. SSH + comptes -------------------------------------------------------
 ssh-keygen -A >/dev/null 2>&1 || true
-echo 'root:ctf-web-decouverte' | chpasswd
+# root VERROUILLÉ : pas de mot de passe → aucun `su root` / login root. La seule
+# voie root prévue est sudo tar (GTFOBins). (Sécurité : ne JAMAIS poser un mot de
+# passe root en clair ici — l'entrypoint est world-readable, ce serait un bypass.)
+passwd -l root >/dev/null 2>&1 || true
 
 echo "[web] Licornia Parc prêt — Apache:${WEB_APP_PORT:-8080}, flags posés, pivot armé."
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/ctf.conf

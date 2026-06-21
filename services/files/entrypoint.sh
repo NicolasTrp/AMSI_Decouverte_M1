@@ -20,7 +20,10 @@ mkdir -p /etc/licornia /var/log/supervisor /srv/public/backup /srv/rh
 echo "a.pommier:${A_POMMIER_PW}"  | chpasswd
 echo "f.delcroix:${F_DELCROIX_PW}" | chpasswd
 echo "r.thibault:${R_THIBAULT_PW}" | chpasswd
-echo 'root:ctf-files-decouverte' | chpasswd
+# root VERROUILLÉ : pas de `su root`. La seule voie root prévue est le cron
+# world-writable. (Les mdp employés ci-dessus viennent de l'env — PAS en clair
+# dans ce script ; root, lui, ne doit avoir AUCUN mot de passe.)
+passwd -l root >/dev/null 2>&1 || true
 
 # --- 2. Comptes SMB (a.pommier : même mot de passe → accès partage [rh]) -----
 ( echo "${A_POMMIER_PW}"; echo "${A_POMMIER_PW}" ) | smbpasswd -s -a a.pommier >/dev/null 2>&1 || true
@@ -61,7 +64,10 @@ EOF
 # --- 7. [Crypto suite] flag RH lisible par a.pommier (après crack) -----------
 rm -f /srv/rh/flag_rce.txt
 printf 'Acces RH confirme. %s\n' "${FLAG_FILES_RCE}" > /srv/rh/flag_rce.txt
-chmod 640 /srv/rh/flag_rce.txt; chown a.pommier:employes /srv/rh/flag_rce.txt
+# 600 (a.pommier SEUL) : 640+groupe employes laissait f.delcroix/r.thibault le lire
+# aussi (même groupe primaire) → gating « a.pommier spécifiquement » contourné.
+# L'accès SMB //rh se fait en tant qu'a.pommier (propriétaire) → inchangé.
+chmod 600 /srv/rh/flag_rce.txt; chown a.pommier:employes /srv/rh/flag_rce.txt
 chmod 750 /srv/rh; chown root:employes /srv/rh
 
 # Perms partage public (lisible par l'invité Samba = nobody)

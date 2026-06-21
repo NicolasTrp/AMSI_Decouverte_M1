@@ -20,7 +20,10 @@ EOF
 chmod 600 /opt/licornia/trophy; chown root:root /opt/licornia/trophy
 
 # --- comptes / SSH ----------------------------------------------------------
-echo 'root:ctf-admin-decouverte' | chpasswd
+# root VERROUILLÉ : pas de mot de passe → aucun `su root` ni login root. Les seules
+# voies root prévues sont le pwn (vault) et le reverse (licornia-check). Poser un
+# mot de passe root ici (script world-readable) court-circuiterait les DEUX.
+passwd -l root >/dev/null 2>&1 || true
 ssh-keygen -A >/dev/null 2>&1 || true
 # c.vasseur se connecte par CLÉ (clé privée lootée sur fileshare).
 
