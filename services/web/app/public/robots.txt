@@ -1,5 +1,6 @@
 User-agent: *
 # Pages internes — ne pas indexer (ceci n'est PAS une protection).
+Disallow: /admin/
+Disallow: /telecharger.php
+Disallow: /uploads/
 Disallow: /config/
-Disallow: /outils.php
-Disallow: /backup/

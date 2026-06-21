@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Seed idempotent des 10 challenges du lab DÉCOUVERTE « Licornia Parc » dans CTFd.
+Seed idempotent des 10 challenges du lab DÉCOUVERTE « ShopXpress » dans CTFd.
 
 Calqué sur le seed de référence (/root/challmsi-ref/scoring/scripts/seed_challenges.py)
 → même mécanique : 10 challenges `dynamic` (500 pts dégressifs), flag de type `ctflab`
@@ -33,10 +33,11 @@ import http.cookiejar
 INITIAL, DECAY, MINIMUM = 500, 20, 100
 
 MISSION = (
-    "## Licornia Parc — mission (découverte M1)\n\n"
+    "## ShopXpress — mission (découverte M1)\n\n"
     "Test d'intrusion **autorisé** sur un environnement **isolé et volontairement "
-    "vulnérable**. Le parc expose un site vitrine en **DMZ** ; le réseau interne "
-    "(**LAN**) héberge un partage de fichiers et le poste d'une administratrice.\n\n"
+    "vulnérable**. La boutique de vente en ligne **ShopXpress** est exposée en "
+    "**DMZ** ; le réseau interne (**LAN**) héberge un partage de fichiers et le "
+    "poste d'un administrateur.\n\n"
     "**Objectif :** partir du site public, compromettre `web`, **pivoter** vers le "
     "LAN, puis enchaîner jusqu'à la prise du domaine. Chaque flag `AMSI{…}` jalonne "
     "le chemin ; les flags du **tronc** débloquent l'étape suivante.\n\n"
@@ -47,13 +48,13 @@ MISSION = (
 
 # key | catégorie CTFd (machine) | catégorie pédago | utilisateur | machine | prérequis | description
 CHALLENGES = [
-    ("WEB_RCE",     "web",   "Web",            "www-data",  "web",   None,          MISSION),
-    ("WEB_REVERSE", "web",   "OSINT",          "—",         "web",   "WEB_RCE",     ""),  # bonus
-    ("WEB_ROOT",    "web",   "Privesc",        "root",      "web",   "WEB_RCE",     ""),
+    ("WEB_RCE",     "web",   "Web (upload RCE)",     "www-data",  "web",   None,          MISSION),
+    ("WEB_REVERSE", "web",   "Web (lecture fichiers)","—",        "web",   "WEB_RCE",     ""),  # bonus
+    ("WEB_ROOT",    "web",   "Privesc",              "root",      "web",   "WEB_RCE",     ""),
     ("FILES_RECON", "files", "Recon",          "invité",    "files", "WEB_ROOT",    ""),
     ("DB_PIVOT",    "files", "Forensique",     "—",         "files", "FILES_RECON", ""),  # bonus
     ("DB_ROOT",     "files", "Stéganographie", "—",         "files", "FILES_RECON", ""),  # bonus
-    ("FILES_RCE",   "files", "Crypto",         "a.pommier", "files", "FILES_RECON", ""),
+    ("FILES_RCE",   "files", "Crypto",         "s.morel",   "files", "FILES_RECON", ""),
     ("FILES_ROOT",  "files", "Privesc",        "root",      "files", "FILES_RCE",   ""),
     ("WS_ROOT",     "admin", "Pwn",            "root",      "admin", "FILES_ROOT",  ""),
     ("FINAL",       "admin", "Reverse",        "root",      "admin", "WS_ROOT",     ""),

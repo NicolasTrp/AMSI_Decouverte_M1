@@ -1,4 +1,4 @@
-/* vault — coffre de la machine admin (Licornia Parc).
+/* vault — coffre de la machine admin (ShopXpress).
  *
  * VULN INTENTIONNELLE (lab CTF) : débordement de tampon sur la pile.
  *   - `read()` lit jusqu'à 256 octets dans un tampon de 64 → écrasement de
@@ -27,7 +27,7 @@ int main(void)
 {
     char buf[64];
     setvbuf(stdout, NULL, _IONBF, 0);
-    puts("=== Coffre Licornia (vault) ===");
+    puts("=== Coffre ShopXpress (vault) ===");
     puts("Entrez le code d'acces du coffre :");
     read(0, buf, 0x100);              /* VULN : 256 octets dans 64 */
     printf("Code refuse: %s\n", buf);

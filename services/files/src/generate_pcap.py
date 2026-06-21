@@ -14,18 +14,19 @@ CLIENT_MAC = bytes.fromhex("02420ac01432")
 SERVER_MAC = bytes.fromhex("02420ac0140b")
 CLIENT_PORT, SERVER_PORT = 44017, 80
 
+body = "user=svc-sauvegarde&password=Sauv3garde-2026!"
 req = (
     "POST /backup/login HTTP/1.1\r\n"
-    "Host: files.licornia.lan\r\n"
-    "User-Agent: licornia-backup-agent/1.0\r\n"
+    "Host: files.shopxpress.lan\r\n"
+    "User-Agent: shopxpress-backup-agent/1.0\r\n"
     "Content-Type: application/x-www-form-urlencoded\r\n"
-    "Content-Length: 41\r\n\r\n"
-    "user=svc-backup&password=B@ckup-Licornia-2026"
+    "Content-Length: " + str(len(body)) + "\r\n\r\n"
+    + body
 ).encode()
 
 resp = (
     "HTTP/1.1 200 OK\r\n"
-    "Server: licornia-backup/1.0\r\n"
+    "Server: shopxpress-backup/1.0\r\n"
     "Content-Type: text/plain\r\n\r\n"
     "Sauvegarde OK. Note interne (NE PAS diffuser): " + FLAG + "\r\n"
 ).encode()

@@ -1,5 +1,5 @@
 """
-Les 10 étapes/flags du lab DÉCOUVERTE « Licornia Parc » (M1).
+Les 10 étapes/flags du lab DÉCOUVERTE « ShopXpress » (M1).
 
 ⚠️ COMPATIBILITÉ PLUGIN — ce module reprend EXACTEMENT le contrat du plugin CTFd
 `ctflab` de référence (cf. /root/challmsi-ref/scoring/plugin/ctflab/steps.py) :
@@ -15,7 +15,7 @@ Les 10 étapes/flags du lab DÉCOUVERTE « Licornia Parc » (M1).
     POUSSÉ au launcher. Le lab ne choisit jamais une valeur, il l'écrit.
 
 SEULES différences avec la référence (cosmétique, sans impact sur la validation) :
-  - `slug` : reflète la VULN DÉCOUVERTE (ex. `web_cmdi` au lieu de `web_rce`).
+  - `slug` : reflète la VULN DÉCOUVERTE (ex. `web_upload_php` au lieu de `web_rce`).
   - `cat`  : la catégorie pédagogique (Web, OSINT, Crypto…), pour l'affichage.
   - `user`/`machine` : la cible (utilisateur @ machine) du lab découverte (pas de
     machine `db` : les 2 flags `DB_*` sont matérialisés sur `files`).
@@ -27,13 +27,13 @@ soit cohérent — ce qui est le cas par construction.
 
 # key | env (figé) | slug (intérieur du flag) | catégorie | utilisateur cible | machine
 STEPS = [
-    ("WEB_RCE",     "FLAG_WEB_RCE",     "web_cmdi",       "Web",            "www-data",  "web"),
-    ("WEB_REVERSE", "FLAG_WEB_REVERSE", "osint_exif",     "OSINT",          "—",         "web"),
-    ("WEB_ROOT",    "FLAG_WEB_ROOT",    "sudo_gtfobins",  "Privesc",        "root",      "web"),
+    ("WEB_RCE",     "FLAG_WEB_RCE",     "web_upload_php", "Web (upload RCE)", "www-data",  "web"),
+    ("WEB_REVERSE", "FLAG_WEB_REVERSE", "web_lfi",        "Web (file read)",  "—",         "web"),
+    ("WEB_ROOT",    "FLAG_WEB_ROOT",    "web_sudo_tar",   "Privesc",          "root",      "web"),
     ("FILES_RECON", "FLAG_FILES_RECON", "smb_anon",       "Recon",          "invité",    "files"),
     ("DB_PIVOT",    "FLAG_DB_PIVOT",    "pcap_clear",     "Forensique",     "—",         "files"),
     ("DB_ROOT",     "FLAG_DB_ROOT",     "stego_image",    "Stéganographie", "—",         "files"),
-    ("FILES_RCE",   "FLAG_FILES_RCE",   "md5_rockyou",    "Crypto",         "a.pommier", "files"),
+    ("FILES_RCE",   "FLAG_FILES_RCE",   "md5_rockyou",    "Crypto",           "s.morel",   "files"),
     ("FILES_ROOT",  "FLAG_FILES_ROOT",  "cron_writable",  "Privesc",        "root",      "files"),
     ("WS_ROOT",     "FLAG_WS_ROOT",     "bof_ret2win",    "Pwn",            "root",      "admin"),
     ("FINAL",       "FLAG_FINAL",       "reverse_xor",    "Reverse",        "root",      "admin"),

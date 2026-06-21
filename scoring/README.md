@@ -1,4 +1,4 @@
-# Scoring — lab découverte « Licornia Parc »
+# Scoring — lab découverte « ShopXpress »
 
 Deux façons de scorer, du plus simple au plus intégré. **Aucune ne modifie le
 launcher ni le plugin CTFd de référence** : le lab respecte le même *contrat*
@@ -38,10 +38,10 @@ au launcher qui les écrit dans l'instance.
 | Variables `.env` (subnets, IP, `WEB_PUBLISH_*`, secrets) | ✅ noms **identiques** → `ensure_env()` paramètre tout |
 | Un seul service publié (`web`) | ✅ seul `web` a `ports:` |
 | 10 variables `FLAG_*` lues par les entrypoints | ✅ identiques (`steps.py`) |
-| Secrets « bakés » à NE PAS randomiser | ✅ le launcher ne régénère QUE `JWT_SECRET/AGENT_HMAC_KEY/MACHINE_ID/DB_*_PASSWORD/SMB_PASSWORD/LDAP_BIND_PW` ; il laisse `ADMIN_MASTER_PW` (XOR du reverse) et `A_POMMIER_PW` (hash MD5 + base64 + SMB) **intacts** depuis `.env.example` → la chaîne reste cohérente par équipe |
+| Secrets « bakés » à NE PAS randomiser | ✅ le launcher ne régénère QUE `JWT_SECRET/AGENT_HMAC_KEY/MACHINE_ID/DB_*_PASSWORD/SMB_PASSWORD/LDAP_BIND_PW` ; il laisse `ADMIN_MASTER_PW` (XOR du reverse) et `S_MOREL_PW` (hash MD5 + base64 + SMB) **intacts** depuis `.env.example` → la chaîne reste cohérente par équipe |
 
 > Vérifié dans `launcher.py:ensure_env()` : les valeurs dont dépendent les exploits
-> (`ADMIN_MASTER_PW=twilight-sparkle-42`, `A_POMMIER_PW=applejack`) viennent de
+> (`ADMIN_MASTER_PW=ShopXpress-Adm-2024`, `S_MOREL_PW=superman`) viennent de
 > `.env.example` et ne sont jamais réécrites. C'est ce qui rend le lab découverte
 > « plug-and-play » avec le launcher existant.
 

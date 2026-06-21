@@ -1,4 +1,4 @@
-# Topologie — lab découverte « Licornia Parc » (M1)
+# Topologie — lab découverte « ShopXpress » (M1)
 
 3 machines en chaîne + 1 routeur. **Seul `web` est publié** : c'est le **point
 d'entrée** unique donné aux étudiants (une IP, un port). Tout le reste se gagne
@@ -12,7 +12,8 @@ par **compromission puis pivot**.
         Internet  ◄───egress───┐     ▼
             ▲                  │  ┌──────────┐
             │ relais proxy     └──┤   web    │  point d'entrée CTF (DMZ)
-            │ (egress LAN)        │ .10      │  Apache/PHP — injection de commande
+            │ (egress LAN)        │ .10      │  boutique ShopXpress (Apache/PHP)
+            │                     │          │  SQLi · traversal · upload RCE → www-data
             │                     │          │  sudo tar (GTFOBins) → root
    ┌────────┼─────────────────────└────┬─────┘  route pivot vers le LAN (NET_ADMIN)
    │   dmz : 172.31.10.0/24             │
@@ -30,8 +31,8 @@ par **compromission puis pivot**.
    │              │ smbd     │     │ (workstation)
    │              │ +cron    │     │ sshd       │
    │              │ +sshd    │     │ vault (pwn)│
-   │              └──────────┘     │ licornia-  │
-   │                   │           │  check (rev)│
+   │              └──────────┘     │ backoffice-│
+   │                   │           │ check (rev)│
    │                   └───clé SSH─┴────────────┘
    │        http_proxy → firewall:8888 (SEULE sortie internet du LAN)
    └──────────────────────────────────────────────────────────────────
@@ -63,8 +64,9 @@ Le firewall est **multi-homed** : `.2` sur la DMZ et `.2` sur le LAN. C'est le s
 | Leçon de segmentation | « le LAN ne joint pas le LAN sans rebond » | « **seul `web` est publié** : on n'entre dans le LAN qu'**après** avoir compromis `web`, en pivotant par lui » |
 
 La segmentation reste donc bien réelle (un seul service exposé), mais le franchissement
-DMZ→LAN se fait avec des **outils standards** (`ssh -J web01`, `ssh -D` + `proxychains`,
-ou `chisel`), à la portée d'un M1.
+DMZ→LAN se fait avec des **outils standards** depuis le shell www-data obtenu sur
+`web` (tunnel `chisel`/SOCKS + `proxychains`), à la portée d'un M1. `web` n'expose
+aucun compte SSH : on pivote par le **shell déjà obtenu**, pas par un `ssh -J ...@web`.
 
 ## Matrice de flux
 
@@ -85,8 +87,8 @@ ou `chisel`), à la portée d'un M1.
 ## Le pivot, pas à pas (intention pédagogique)
 
 1. L'étudiant ne voit QUE `web` (point d'entrée publié).
-2. Il compromet `web` (injection de commande → www-data → `sudo tar` → root).
-3. Depuis `web` (qui a la route LAN), il **pivote** : `ssh -J`, proxychains, ou chisel.
+2. Il compromet `web` (SQLi → upload PHP → www-data → `sudo tar` → root).
+3. Depuis `web` (qui a la route LAN), il **pivote** par son shell : chisel/SOCKS + proxychains.
 4. Il atteint `files` (SMB/SSH) puis, avec la **clé SSH lootée**, `admin`.
 
 ## Pourquoi un conteneur firewall (et pas l'isolation Docker) ?

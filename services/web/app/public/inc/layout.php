@@ -1,5 +1,5 @@
 <?php
-// Gabarit minimal du site « Licornia Parc ».
+// Gabarit minimal de la boutique « ShopXpress ».
 function lay_head($title) {
     $t = htmlspecialchars($title);
     echo <<<HTML
@@ -8,17 +8,18 @@ function lay_head($title) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>$t — Licornia Parc</title>
+<title>$t — ShopXpress</title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <header>
-  <div class="brand">🦄 Licornia&nbsp;Parc</div>
+  <div class="brand">🛒 ShopXpress</div>
   <nav>
     <a href="/index.php">Accueil</a>
-    <a href="/equipe.php">Notre équipe</a>
-    <a href="/outils.php">Diagnostic réseau</a>
-    <a href="/brochure-licornia.jpg">Brochure</a>
+    <a href="/produits.php">Produits</a>
+    <a href="/telecharger.php">Mes factures</a>
+    <a href="/apropos.php">À propos</a>
+    <a href="/connexion.php">Espace gérant</a>
   </nav>
 </header>
 <main>
@@ -29,8 +30,8 @@ function lay_foot() {
     echo <<<HTML
 </main>
 <footer>
-  <p>Licornia Parc — le parc à licornes de la région. Site interne, usage réservé au personnel.</p>
-  <!-- TODO theo: penser à retirer la page /outils.php de la prod (debug réseau) -->
+  <p>ShopXpress — votre boutique high-tech en ligne. Paiement sécurisé, livraison 24h.</p>
+  <!-- TODO k.dubois: retirer /telecharger.php (lecture directe de fichiers) avant la prod -->
 </footer>
 </body>
 </html>

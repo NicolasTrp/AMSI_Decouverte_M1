@@ -37,7 +37,7 @@ services:
     networks:
       dmz:
         ipv4_address: ${WEB_DMZ_IP}
-        aliases: [web.licornia.lan]
+        aliases: [web.shopxpress.lan]
     # SEUL service publié = le point d'entrée donné aux étudiants (IP:port).
     ports:
       - "${WEB_PUBLISH_IP:-0.0.0.0}:${WEB_PUBLISH_PORT:-8080}:${WEB_APP_PORT}"
@@ -45,7 +45,7 @@ services:
       WEB_APP_PORT: ${WEB_APP_PORT}
       LAN_SUBNET: ${LAN_SUBNET}
       FIREWALL_DMZ_IP: ${FIREWALL_DMZ_IP}
-      A_POMMIER_PW: ${A_POMMIER_PW}
+      S_MOREL_PW: ${S_MOREL_PW}
       FLAG_WEB_RCE: ${FLAG_WEB_RCE}
       FLAG_WEB_REVERSE: ${FLAG_WEB_REVERSE}
       FLAG_WEB_ROOT: ${FLAG_WEB_ROOT}
@@ -67,10 +67,10 @@ services:
     networks:
       dmz:
         ipv4_address: ${FIREWALL_DMZ_IP}
-        aliases: [firewall.licornia.lan, gw.licornia.lan]
+        aliases: [firewall.shopxpress.lan, gw.shopxpress.lan]
       lan:
         ipv4_address: ${FIREWALL_LAN_IP}
-        aliases: [firewall.licornia.lan, gw.licornia.lan]
+        aliases: [firewall.shopxpress.lan, gw.shopxpress.lan]
     environment:
       DMZ_SUBNET: ${DMZ_SUBNET}
       LAN_SUBNET: ${LAN_SUBNET}
@@ -101,16 +101,16 @@ services:
     networks:
       lan:
         ipv4_address: ${FILES_LAN_IP}
-        aliases: [files.licornia.lan, fileshare.licornia.lan]
+        aliases: [files.shopxpress.lan, fileshare.shopxpress.lan]
     environment:
       FIREWALL_LAN_IP: ${FIREWALL_LAN_IP}
       DMZ_SUBNET: ${DMZ_SUBNET}
       WEB_DMZ_IP: ${WEB_DMZ_IP}
       SMB_USER: ${SMB_USER}
       SMB_PASSWORD: ${SMB_PASSWORD}
-      A_POMMIER_PW: ${A_POMMIER_PW}
-      F_DELCROIX_PW: ${F_DELCROIX_PW}
-      R_THIBAULT_PW: ${R_THIBAULT_PW}
+      S_MOREL_PW: ${S_MOREL_PW}
+      L_PETIT_PW: ${L_PETIT_PW}
+      N_ROUX_PW: ${N_ROUX_PW}
       STEGO_SECRET: ${STEGO_SECRET}
       WORKSTATION_LAN_IP: ${WORKSTATION_LAN_IP}
       FLAG_FILES_RECON: ${FLAG_FILES_RECON}
@@ -138,7 +138,7 @@ services:
     networks:
       lan:
         ipv4_address: ${WORKSTATION_LAN_IP}
-        aliases: [admin.licornia.lan, workstation.licornia.lan]
+        aliases: [admin.shopxpress.lan, workstation.shopxpress.lan]
     environment:
       FIREWALL_LAN_IP: ${FIREWALL_LAN_IP}
       DMZ_SUBNET: ${DMZ_SUBNET}
