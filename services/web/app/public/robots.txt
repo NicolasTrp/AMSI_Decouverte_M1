@@ -1,0 +1,5 @@
+User-agent: *
+# Pages internes — ne pas indexer (ceci n'est PAS une protection).
+Disallow: /config/
+Disallow: /outils.php
+Disallow: /backup/

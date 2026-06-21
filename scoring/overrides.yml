@@ -1,0 +1,37 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# overrides ctflab — DÉCOUVERTE. Appliqué PAR-DESSUS docker-compose.yml par le
+# launcher (docker compose -f docker-compose.yml -f overrides.yml).
+#
+# Deux rôles (identiques à la référence) :
+#   1. image: ctflab-dec-<svc>:latest  → image PARTAGÉE entre toutes les équipes
+#      (buildée une fois par scoring/prebuild.sh ; un projet compose par équipe la
+#      réutilise sans rebuild → déploiements rapides, disque mutualisé).
+#      ⚠️ Tags DÉDIÉS `ctflab-dec-*` : AUCUNE collision avec les images `ctflab-*`
+#      du lab avancé (les deux labs peuvent coexister sur l'hôte).
+#   2. mem_limit / cpus → PLAFONDS (ceilings, pas de réservation).
+#
+# PAS de service `db` ici : le lab découverte n'a que web/firewall/files/workstation.
+# (Le launcher de référence liste `db` dans SERVICES pour les actions par-conteneur ;
+#  un `db` absent est simplement ignoré par `compose up`.) Les 2 flags `FLAG_DB_*`
+# sont matérialisés sur `files` (pcap + stégano).
+#
+# Machines découverte plus légères que l'avancé (pas de MariaDB/slapd/heap) → caps
+# revus à la baisse. Somme (1 équipe à fond) ≈ 1,4 GB / 5 cpu.
+# ─────────────────────────────────────────────────────────────────────────────
+services:
+  web:
+    image: ctflab-dec-web:latest
+    mem_limit: 512m
+    cpus: 1.5
+  firewall:
+    image: ctflab-dec-firewall:latest
+    mem_limit: 128m
+    cpus: 0.5
+  files:
+    image: ctflab-dec-files:latest
+    mem_limit: 512m
+    cpus: 1.5
+  workstation:
+    image: ctflab-dec-workstation:latest
+    mem_limit: 256m
+    cpus: 1.0

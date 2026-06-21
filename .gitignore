@@ -1,0 +1,13 @@
+# Secrets / état runtime — JAMAIS commité
+.env
+scoring/lab-instances/
+scoring/lab-instances-dec/
+*.log
+
+# Artefacts de build de binaires (sources .c versionnées, binaires non)
+services/workstation/build/
+
+# Divers
+*.swp
+.DS_Store
+scoring/__pycache__/

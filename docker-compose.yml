@@ -1,0 +1,159 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# lab-ctf-decouverte-m1 — réseau d'entreprise segmenté DMZ/LAN, niveau découverte.
+#
+# 3 machines en chaîne + 1 routeur :
+#   web (DMZ, point d'entrée publié) → fileshare (LAN) → admin (LAN, cible finale)
+#
+# Format compose 2.4 : compatible `docker-compose` v1 ET `docker compose` v2
+# (support de `depends_on: condition: service_healthy`).
+#
+# Posture HÔTE : privileged:false, pas de docker.sock, cap_drop:[ALL] + ajouts
+# minimaux ; seul `web` est publié (= point d'entrée) ; `lan` est `internal`.
+# Services nommés web/firewall/files/workstation → compat launcher CTFd.
+# ─────────────────────────────────────────────────────────────────────────────
+version: "2.4"
+
+networks:
+  dmz:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${DMZ_SUBNET}
+          gateway: ${DMZ_GATEWAY}
+  lan:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: ${LAN_SUBNET}
+          gateway: ${LAN_GATEWAY}
+
+services:
+
+  # ── Point d'entrée du CTF (DMZ) — Web / OSINT / Encodage / Privesc ──────────
+  web:
+    build: ./services/web
+    hostname: web
+    networks:
+      dmz:
+        ipv4_address: ${WEB_DMZ_IP}
+        aliases: [web.licornia.lan]
+    # SEUL service publié = le point d'entrée donné aux étudiants (IP:port).
+    ports:
+      - "${WEB_PUBLISH_IP:-0.0.0.0}:${WEB_PUBLISH_PORT:-8080}:${WEB_APP_PORT}"
+    environment:
+      WEB_APP_PORT: ${WEB_APP_PORT}
+      LAN_SUBNET: ${LAN_SUBNET}
+      FIREWALL_DMZ_IP: ${FIREWALL_DMZ_IP}
+      A_POMMIER_PW: ${A_POMMIER_PW}
+      FLAG_WEB_RCE: ${FLAG_WEB_RCE}
+      FLAG_WEB_REVERSE: ${FLAG_WEB_REVERSE}
+      FLAG_WEB_ROOT: ${FLAG_WEB_ROOT}
+    cap_drop: [ALL]
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - DAC_OVERRIDE
+      - SYS_CHROOT          # chroot privsep sshd
+      - NET_ADMIN           # poser la route statique vers le LAN (pivot)
+    privileged: false
+    restart: unless-stopped
+
+  # ── Firewall / routeur central (multi-homed DMZ+LAN) ───────────────────────
+  firewall:
+    build: ./services/firewall
+    hostname: firewall
+    networks:
+      dmz:
+        ipv4_address: ${FIREWALL_DMZ_IP}
+        aliases: [firewall.licornia.lan, gw.licornia.lan]
+      lan:
+        ipv4_address: ${FIREWALL_LAN_IP}
+        aliases: [firewall.licornia.lan, gw.licornia.lan]
+    environment:
+      DMZ_SUBNET: ${DMZ_SUBNET}
+      LAN_SUBNET: ${LAN_SUBNET}
+      FIREWALL_LAN_IP: ${FIREWALL_LAN_IP}
+      PROXY_PORT: ${PROXY_PORT}
+    cap_drop: [ALL]
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - CHOWN
+      - SETUID
+      - SETGID
+    sysctls:
+      - net.ipv4.ip_forward=1
+    privileged: false
+    healthcheck:
+      test: ["CMD-SHELL", "test \"$$(cat /proc/sys/net/ipv4/ip_forward)\" = 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 3s
+    restart: unless-stopped
+
+  # ── Partage de fichiers SMB (LAN) — Forensique / Stégano / Crypto / Privesc ─
+  files:
+    build: ./services/files
+    hostname: files
+    networks:
+      lan:
+        ipv4_address: ${FILES_LAN_IP}
+        aliases: [files.licornia.lan, fileshare.licornia.lan]
+    environment:
+      FIREWALL_LAN_IP: ${FIREWALL_LAN_IP}
+      DMZ_SUBNET: ${DMZ_SUBNET}
+      WEB_DMZ_IP: ${WEB_DMZ_IP}
+      SMB_USER: ${SMB_USER}
+      SMB_PASSWORD: ${SMB_PASSWORD}
+      A_POMMIER_PW: ${A_POMMIER_PW}
+      F_DELCROIX_PW: ${F_DELCROIX_PW}
+      R_THIBAULT_PW: ${R_THIBAULT_PW}
+      STEGO_SECRET: ${STEGO_SECRET}
+      WORKSTATION_LAN_IP: ${WORKSTATION_LAN_IP}
+      FLAG_FILES_RECON: ${FLAG_FILES_RECON}
+      FLAG_DB_PIVOT: ${FLAG_DB_PIVOT}
+      FLAG_DB_ROOT: ${FLAG_DB_ROOT}
+      FLAG_FILES_RCE: ${FLAG_FILES_RCE}
+      FLAG_FILES_ROOT: ${FLAG_FILES_ROOT}
+    cap_drop: [ALL]
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - DAC_OVERRIDE
+      - SYS_CHROOT
+    privileged: false
+    depends_on:
+      firewall:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Poste d'administration (LAN) — Pwn / Reverse / cible finale ─────────────
+  workstation:
+    build: ./services/workstation
+    hostname: admin
+    networks:
+      lan:
+        ipv4_address: ${WORKSTATION_LAN_IP}
+        aliases: [admin.licornia.lan, workstation.licornia.lan]
+    environment:
+      FIREWALL_LAN_IP: ${FIREWALL_LAN_IP}
+      DMZ_SUBNET: ${DMZ_SUBNET}
+      ADMIN_MASTER_PW: ${ADMIN_MASTER_PW}
+      FLAG_WS_ROOT: ${FLAG_WS_ROOT}
+      FLAG_FINAL: ${FLAG_FINAL}
+    cap_drop: [ALL]
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - DAC_OVERRIDE
+      - SYS_CHROOT
+    privileged: false
+    depends_on:
+      firewall:
+        condition: service_healthy
+    restart: unless-stopped
